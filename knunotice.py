@@ -106,7 +106,7 @@ class WebhookNotice:
         self.post_new()
         now = datetime.datetime.now()
         print(self.event_name, 'thread running', now.strftime('%Y-%m-%d %H:%M:%S'))
-        threading.Timer(5, self.run).start()
+        threading.Timer(60, self.run).start()
 
 
     
