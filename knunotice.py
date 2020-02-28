@@ -39,9 +39,9 @@ class WebhookNotice:
         # 글 번호, 제목, 작성부서, 작성일 등 포함
         strings = list(filter(('\n').__ne__, list(tr.strings)))
         
-        num = strings[0]            # '공지' 또는 글 번호
-        title = strings[1][24:-7]   # 제목
-        team = strings[2]           # 작성 부서
+        num = strings[0]                    # '공지' 또는 글 번호
+        title = strings[1].strip('\n\t\r')  # 제목
+        team = strings[2]                   # 작성 부서
 
 
         # URL, 제목 등 포함
@@ -112,10 +112,12 @@ class WebhookNotice:
 # 직접 실행될 때
 if __name__ == "__main__":  
     
-    WebhookNotice().run()
+    # WebhookNotice().run()
 
-    
+    wh = WebhookNotice()
+    wh.latest = '2006'
+    wh.post_new()
+
 # import되어 사용될 때
-else:
-    
+else:  
     pass
