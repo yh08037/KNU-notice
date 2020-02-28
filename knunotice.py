@@ -112,11 +112,8 @@ class WebhookNotice:
 # 직접 실행될 때
 if __name__ == "__main__":  
     
-    # WebhookNotice().run()
+    WebhookNotice().run()
 
-    wh = WebhookNotice()
-    wh.latest = '2006'
-    wh.post_new()
 
 # import되어 사용될 때
 else:  
