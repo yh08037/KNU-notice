@@ -1,6 +1,7 @@
 import requests
 import threading
 import datetime
+import time
 from bs4 import BeautifulSoup
 
 
@@ -16,7 +17,7 @@ class WebhookNotice:
         self.soup = BeautifulSoup(requests.get(self.notice_url).text, 'html.parser')
         self.tags_tr = self.soup.find('tbody').findAll('tr')
 
-        self.latest = 0
+        self.latest = ''
 
         self.reset_latest()
 
@@ -33,7 +34,7 @@ class WebhookNotice:
 
     def get_num(self, tr):
 
-        return list(tr.strings)[1]
+        return list(filter(('\n').__ne__, list(tr.strings)))[0]
     
     
     def get_info(self, tr):
@@ -41,9 +42,9 @@ class WebhookNotice:
         # 글 번호, 제목, 작성부서, 작성일 등 포함
         strings = list(filter(('\n').__ne__, list(tr.strings)))
         
-        num = strings[0]                    # '공지' 또는 글 번호
+        # num = strings[0]                    # '공지' 또는 글 번호
         title = strings[1].strip('\n\t\r')  # 제목
-        team = strings[2]                   # 작성 부서
+        # team = strings[2]                   # 작성 부서
 
 
         # URL, 제목 등 포함
@@ -101,12 +102,12 @@ class WebhookNotice:
             self.request_post(tr)
 
 
-    def run(self):
+    def run(self, interval):
         
         self.post_new()
         now = datetime.datetime.now()
         print(self.event_name, 'thread running', now.strftime('%Y-%m-%d %H:%M:%S'))
-        threading.Timer(60, self.run).start()
+        threading.Timer(interval, self.run).start()
 
 
     
@@ -127,8 +128,9 @@ if __name__ == "__main__":
     notice_wh = WebhookNotice(notice_url, notice_event_name, user_key)
     corona_wh = WebhookNotice(corona_url, corona_event_name, user_key)
 
-    notice_wh.run()
-    corona_wh.run()
+    notice_wh.run(120)
+    time.sleep(60)
+    corona_wh.run(120)
     
 
 # import되어 사용될 때
