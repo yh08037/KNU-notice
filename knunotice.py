@@ -3,7 +3,6 @@ import threading
 from bs4 import BeautifulSoup
 
 
-
 class WebhookNotice:
 
     def __init__(self):
@@ -15,8 +14,6 @@ class WebhookNotice:
         self.tags_tr = self.soup.find('tbody').findAll('tr')
 
         self.latest = 0
-
-        
 
         for tr in self.tags_tr:
             num = self.get_num(tr)
@@ -98,9 +95,7 @@ class WebhookNotice:
     def run(self):
         
         self.post_new()
-
         print('thread running')
-        
         threading.Timer(5, self.run).start()
         
 
@@ -114,27 +109,3 @@ if __name__ == "__main__":
 # import되어 사용될 때
 else:  
     pass
-
-
-
-
-'''
-boardlist = soup.select_one('CSS 셀렉터') # 구체적인 파싱 부분은 사이트마다 다를테니 생략하겠습니다.
-titles = boardlist.select('CSS 셀렉터')
- 
-lines = [line.rstrip('\n') for line in open('파일명.txt', 'r', encoding='인코딩')] # 파일 -> 리스트
- 
-f = open('파일명.txt', 'w', encoding='인코딩')
-for title in titles: # 기존의 파싱 결과와 하나씩 대조하여 일치하는 것이 없으면 텔레그램 메시지를 보냅니다.
-    count = 0
-    check = 0
-    while (count < len(lines)):
-        if title.text == lines[count]:
-            check = 1
-        count += 1
-    if check == 0:
-        bot.sendMessage(chat_id=chat_id, text=title.text)
-    f.write(title.text  + '\n')
-f.close()
-'''
-
