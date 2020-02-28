@@ -3,9 +3,6 @@ import threading
 import datetime
 from bs4 import BeautifulSoup
 
-from threading import Thread
-from multiprocessing import Process
-
 
 class WebhookNotice:
 
