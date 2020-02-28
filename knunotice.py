@@ -3,13 +3,18 @@ import threading
 import datetime
 from bs4 import BeautifulSoup
 
+from threading import Thread
+from multiprocessing import Process
+
 
 class WebhookNotice:
 
-    def __init__(self):
+    def __init__(self, notice_url, event_name, user_key):
 
-        self.notice_url = 'https://knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=1&menu_idx=67'
-        self.user_url = 'https://maker.ifttt.com/trigger/knunotice/with/key/YOUR_IFTTT_WEBHOOK_KEY' # need to be fixed to use this!
+        self.event_name = event_name
+        
+        self.notice_url = notice_url
+        self.user_url = 'https://maker.ifttt.com/trigger/' + event_name + '/with/key/' + user_key
         
         self.soup = BeautifulSoup(requests.get(self.notice_url).text, 'html.parser')
         self.tags_tr = self.soup.find('tbody').findAll('tr')
@@ -95,7 +100,7 @@ class WebhookNotice:
         new_tr_list = self.check_new()
         
         for tr in new_tr_list:
-            print('new post!')
+            print('new post! -', self.event_name)
             self.request_post(tr)
 
 
@@ -103,17 +108,31 @@ class WebhookNotice:
         
         self.post_new()
         now = datetime.datetime.now()
-        print('thread running', now.strftime('%Y-%m-%d %H:%M:%S'))
+        print(self.event_name, 'thread running', now.strftime('%Y-%m-%d %H:%M:%S'))
         threading.Timer(5, self.run).start()
-        
+
+
+    
 
 
 
 # 직접 실행될 때
-if __name__ == "__main__":  
+if __name__ == "__main__":
     
-    WebhookNotice().run()
+    notice_url = 'https://knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=1&menu_idx=67'
+    corona_url = 'http://knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=34&menu_idx=224'
 
+    notice_event_name = 'knunotice'
+    corona_event_name = 'knucorona'
+
+    user_key = 'YOUR_IFTTT_WEBHOOK_KEY' # need to be fixed to use this!
+    
+    notice_wh = WebhookNotice(notice_url, notice_event_name, user_key)
+    corona_wh = WebhookNotice(corona_url, corona_event_name, user_key)
+
+    notice_wh.run()
+    corona_wh.run()
+    
 
 # import되어 사용될 때
 else:  
