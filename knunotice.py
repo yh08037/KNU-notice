@@ -9,7 +9,7 @@ class WebhookNotice:
     def __init__(self):
 
         self.notice_url = 'https://knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=1&menu_idx=67'
-        self.user_url = 'https://maker.ifttt.com/trigger/knunotice/with/key/b_vCv2GTzTyUXY6eGo-u_' # need to be fixed to use this!
+        self.user_url = 'https://maker.ifttt.com/trigger/knunotice/with/key/YOUR_IFTTT_WEBHOOK_KEY' # need to be fixed to use this!
         
         self.soup = BeautifulSoup(requests.get(self.notice_url).text, 'html.parser')
         self.tags_tr = self.soup.find('tbody').findAll('tr')
