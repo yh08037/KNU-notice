@@ -1,5 +1,6 @@
 import requests
 import threading
+import datetime
 from bs4 import BeautifulSoup
 
 
@@ -8,13 +9,17 @@ class WebhookNotice:
     def __init__(self):
 
         self.notice_url = 'https://knu.ac.kr/wbbs/wbbs/bbs/btin/list.action?bbs_cde=1&menu_idx=67'
-        self.user_url = 'https://maker.ifttt.com/trigger/knunotice/with/key/YOUR_IFTTT_WEBHOOK_KEY' # need to be fixed to use this!
+        self.user_url = 'https://maker.ifttt.com/trigger/knunotice/with/key/b_vCv2GTzTyUXY6eGo-u_' # need to be fixed to use this!
         
         self.soup = BeautifulSoup(requests.get(self.notice_url).text, 'html.parser')
         self.tags_tr = self.soup.find('tbody').findAll('tr')
 
         self.latest = 0
 
+        self.reset_latest()
+
+
+    def reset_latest(self):
         for tr in self.tags_tr:
             num = self.get_num(tr)
             if num == '공지':
@@ -80,6 +85,8 @@ class WebhookNotice:
             else: # new things!
                 new_tr_list.insert(0, tr)
 
+        self.reset_latest()
+
         return new_tr_list
 
 
@@ -88,14 +95,15 @@ class WebhookNotice:
         new_tr_list = self.check_new()
         
         for tr in new_tr_list:
-            print('hello')
+            print('new post!')
             self.request_post(tr)
 
 
     def run(self):
         
         self.post_new()
-        print('thread running')
+        now = datetime.datetime.now()
+        print('thread running', now.strftime('%Y-%m-%d %H:%M:%S'))
         threading.Timer(5, self.run).start()
         
 
@@ -106,6 +114,8 @@ if __name__ == "__main__":
     
     WebhookNotice().run()
 
+    
 # import되어 사용될 때
-else:  
+else:
+    
     pass
