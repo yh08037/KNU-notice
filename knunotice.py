@@ -23,29 +23,25 @@ class WebhookNotice:
 
 
     def reset_latest(self):
+        
         for tr in self.tags_tr:
-            num = self.get_num(tr)
+            num, title, _ = self.get_info(tr)
+            
             if num == '공지':
                 continue
             else:
-                self.latest = num
+                self.latest = title
                 break
 
-
-    def get_num(self, tr):
-
-        return list(filter(('\n').__ne__, list(tr.strings)))[0]
-    
-    
+                
     def get_info(self, tr):
         
         # 글 번호, 제목, 작성부서, 작성일 등 포함
         strings = list(filter(('\n').__ne__, list(tr.strings)))
         
-        # num = strings[0]                    # '공지' 또는 글 번호
+        num = strings[0]                    # '공지' 또는 글 번호
         title = strings[1].strip('\n\t\r')  # 제목
         # team = strings[2]                   # 작성 부서
-
 
         # URL, 제목 등 포함
         subject = tr.find(attrs={'class':'subject'})
@@ -54,17 +50,15 @@ class WebhookNotice:
         del strings, subject
         
         # return num, title, team, url
-        return title, url
+        return num, title, url
     
 
-    def request_post(self, tr):
+    def request_post(self, info):
 
-        title, url = self.get_info(tr)        
+        title, url = info
         data = {'value1': title, 'value2': url}
 
-        res = requests.post(self.user_url, data=data)
-
-        return res
+        requests.post(self.user_url, data=data)
 
 
     def update_tags(self):
@@ -77,37 +71,40 @@ class WebhookNotice:
 
         self.update_tags()
         
-        new_tr_list = []
+        new_info_list = []
 
         for tr in self.tags_tr:
-            num = self.get_num(tr)
+            num, title, url = self.get_info(tr)
+            
             if num == '공지':
                 continue
-            elif num == self.latest:
+            elif title == self.latest:
                 break
             else: # new things!
-                new_tr_list.insert(0, tr)
+                new_info_list.insert(0, (title, url))
 
         self.reset_latest()
 
-        return new_tr_list
+        return new_info_list
 
 
     def post_new(self):
 
-        new_tr_list = self.check_new()
+        new_info_list = self.check_new()
         
-        for tr in new_tr_list:
-            print('new post! -', self.event_name)
-            self.request_post(tr)
+        for info in new_info_list:
+            print('new post! -', self.event_name, info[0])
+            self.request_post(info)
 
 
     def run(self, interval):
         
-        self.post_new()
         now = datetime.datetime.now()
         print(self.event_name, 'thread running', now.strftime('%Y-%m-%d %H:%M:%S'))
-        threading.Timer(interval, self.run).start()
+
+        self.post_new()
+
+        threading.Timer(interval, self.run, args=[interval]).start()
 
 
     
@@ -123,7 +120,8 @@ if __name__ == "__main__":
     notice_event_name = 'knunotice'
     corona_event_name = 'knucorona'
 
-    user_key = 'YOUR_IFTTT_WEBHOOK_KEY' # need to be fixed to use this!
+    # user_key = 'bjgZ-3u6er_9kuXv_jaB9Q' # need to be fixed to use this!
+    user_key = 'YOUR_IFTTT_WEBHOOK_KEY'
     
     notice_wh = WebhookNotice(notice_url, notice_event_name, user_key)
     corona_wh = WebhookNotice(corona_url, corona_event_name, user_key)
