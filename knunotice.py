@@ -17,6 +17,7 @@ class WebhookNotice:
         self.soup = BeautifulSoup(requests.get(self.notice_url).text, 'html.parser')
         self.tags_tr = self.soup.find('tbody').findAll('tr')
 
+        self.today = self.get_today()
         self.latest = ''
 
         self.reset_latest()
@@ -33,7 +34,12 @@ class WebhookNotice:
                 self.latest = title
                 break
 
-                
+
+    def get_today(self):
+        
+        return datetime.datetime.now().strftime('%Y-%m-%d')
+    
+    
     def get_info(self, tr):
         
         # 글 번호, 제목, 작성부서, 작성일 등 포함
@@ -73,9 +79,14 @@ class WebhookNotice:
         
         new_info_list = []
 
+        # 자정이 지나면 latest를 reset!
+        if self.today != self.get_today():
+            self.reset_latest()
+            self.today = self.get_today()
+            
         for tr in self.tags_tr:
             num, title, url = self.get_info(tr)
-            
+                        
             if num == '공지':
                 continue
             elif title == self.latest:
@@ -120,7 +131,6 @@ if __name__ == "__main__":
     notice_event_name = 'knunotice'
     corona_event_name = 'knucorona'
 
-    # user_key = 'bjgZ-3u6er_9kuXv_jaB9Q' # need to be fixed to use this!
     user_key = 'YOUR_IFTTT_WEBHOOK_KEY'
     
     notice_wh = WebhookNotice(notice_url, notice_event_name, user_key)
